@@ -31,7 +31,7 @@ from web3 import Web3
 
 DEFAULT_RPC = "https://atlantic.dplabs-internal.com"
 DEFAULT_CONTRACT = os.environ.get(
-    "AGENTPAY_CONTRACT", "__CONTRACT_ADDRESS__"
+    "AGENTPAY_CONTRACT", "0xc127fC92d9256044EAc8995Ac4afBd99185810be"
 )
 CHAIN_ID = 688689
 STATUS_NAMES = ["Open", "Claimed", "Submitted", "Completed", "Cancelled"]

@@ -5,7 +5,7 @@ license: MIT
 metadata:
   network: Pharos Atlantic Testnet
   chain_id: "688689"
-  contract: "__CONTRACT_ADDRESS__"
+  contract: "0xc127fC92d9256044EAc8995Ac4afBd99185810be"
 compatibility: Requires Python 3.10+ with web3>=6 (pip install web3) and network access to the Pharos Atlantic RPC.
 ---
 
@@ -35,7 +35,7 @@ pip install web3
 export AGENTPAY_PRIVATE_KEY=<this agent's key>   # only needed for writes
 # optional overrides:
 # export AGENTPAY_RPC=https://atlantic.dplabs-internal.com
-# export AGENTPAY_CONTRACT=__CONTRACT_ADDRESS__
+# export AGENTPAY_CONTRACT=0xc127fC92d9256044EAc8995Ac4afBd99185810be
 ```
 
 The calling wallet needs a small amount of Atlantic PHRS for gas
