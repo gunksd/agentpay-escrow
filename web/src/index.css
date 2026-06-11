@@ -998,8 +998,21 @@ footer {
   inset: 0;
   width: 100vw;
   height: 100vh;
-  z-index: -2;
+  object-fit: cover;
+  z-index: -3;
   background: linear-gradient(oklch(0.13 0.025 245), oklch(0.16 0.022 235));
+}
+
+/* darken the video so light text stays readable on top */
+.film::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    linear-gradient(to bottom, rgb(2 6 12 / 0.55), rgb(2 6 12 / 0.35) 40%, rgb(2 6 12 / 0.7)),
+    radial-gradient(ellipse 80% 60% at 50% 38%, transparent 45%, rgb(2 6 12 / 0.5));
 }
 
 .film-vignette {

@@ -5,7 +5,6 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
 import { CONTRACT, EXPLORER } from "../chain";
 import { useApp } from "../ui/AppContext";
-import { createNightSea, type NightSea } from "../three/nightSea";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -34,7 +33,6 @@ const STEPS = [
 
 export default function Home() {
   const { tasks } = useApp();
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
 
   const stats = useMemo(() => {
@@ -46,22 +44,14 @@ export default function Home() {
   }, [tasks]);
 
   useEffect(() => {
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const canvas = canvasRef.current;
+    const reduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
     const root = rootRef.current;
-    if (!canvas || !root) return;
+    if (!root) return;
 
-    let sea: NightSea | null = null;
-    try {
-      sea = createNightSea(canvas);
-    } catch {
-      canvas.style.display = "none"; // WebGL unavailable: gradient fallback
-    }
-
-    if (reduced) {
-      sea?.renderOnce();
-      return () => sea?.dispose();
-    }
+    // Reduced motion: skip smooth-scroll + scroll-driven animation entirely.
+    if (reduced) return;
 
     /* Lenis + GSAP ticker (single rAF owner) */
     const lenis = new Lenis({ lerp: 0.11 });
@@ -70,46 +60,32 @@ export default function Home() {
     gsap.ticker.add(tick);
     gsap.ticker.lagSmoothing(0);
 
-    sea?.start();
-
-    /* pause the sea while the canvas is off-screen */
-    const io = new IntersectionObserver(
-      ([e]) => (e.isIntersecting ? sea?.start() : sea?.stop()),
-      { threshold: 0.02 },
-    );
-    io.observe(canvas);
-    const onVis = () => (document.hidden ? sea?.stop() : sea?.start());
-    document.addEventListener("visibilitychange", onVis);
-
-    const onMove = (e: PointerEvent) => {
-      sea?.setPointer(
-        (e.clientX / window.innerWidth) * 2 - 1,
-        (e.clientY / window.innerHeight) * 2 - 1,
-      );
-    };
-    window.addEventListener("pointermove", onMove, { passive: true });
-
     const ctx = gsap.context(() => {
       /* hero entrance */
       gsap.fromTo(
         ".film-hero .line",
         { yPercent: 110, opacity: 0 },
-        { yPercent: 0, opacity: 1, duration: 1.1, stagger: 0.14, ease: "power4.out", delay: 0.15 },
+        {
+          yPercent: 0,
+          opacity: 1,
+          duration: 1.1,
+          stagger: 0.14,
+          ease: "power4.out",
+          delay: 0.15,
+        },
       );
       gsap.fromTo(
         [".film-hero p", ".film-hero .hero-links", ".scroll-cue"],
         { y: 26, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.9, stagger: 0.12, ease: "power3.out", delay: 0.7 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.9,
+          stagger: 0.12,
+          ease: "power3.out",
+          delay: 0.7,
+        },
       );
-
-      /* camera dolly with scroll across the whole page */
-      ScrollTrigger.create({
-        trigger: root,
-        start: "top top",
-        end: "bottom bottom",
-        scrub: true,
-        onUpdate: (self) => sea?.setScroll(self.progress),
-      });
 
       /* hero copy drifts up & fades as you leave it */
       gsap.to(".film-hero-inner", {
@@ -132,7 +108,12 @@ export default function Home() {
           {
             opacity: 1,
             ease: "none",
-            scrollTrigger: { trigger: el, start: "top 78%", end: "top 45%", scrub: true },
+            scrollTrigger: {
+              trigger: el,
+              start: "top 78%",
+              end: "top 45%",
+              scrub: true,
+            },
           },
         );
       });
@@ -188,18 +169,24 @@ export default function Home() {
 
     return () => {
       ctx.revert();
-      io.disconnect();
-      document.removeEventListener("visibilitychange", onVis);
-      window.removeEventListener("pointermove", onMove);
       gsap.ticker.remove(tick);
       lenis.destroy();
-      sea?.dispose();
     };
   }, []);
 
   return (
     <div className="film" ref={rootRef}>
-      <canvas className="film-canvas" ref={canvasRef} aria-hidden="true" />
+      <video
+        className="film-canvas"
+        autoPlay
+        muted
+        loop
+        playsInline
+        aria-hidden="true"
+        poster="/logo-ink.png"
+      >
+        <source src="/bg-hero.mp4" type="video/mp4" />
+      </video>
       <div className="film-grain" aria-hidden="true" />
       <div className="film-vignette" aria-hidden="true" />
 
@@ -210,12 +197,15 @@ export default function Home() {
               <span className="line">Agents hire agents.</span>
             </span>
             <span className="line-mask">
-              <span className="line line-amber">The lantern holds the bounty.</span>
+              <span className="line line-amber">
+                The lantern holds the bounty.
+              </span>
             </span>
           </h1>
           <p>
-            A task escrow on Pharos. PHRS locked in a contract with no admin key,
-            released by proof of work, remembered by an on-chain reputation ledger.
+            A task escrow on Pharos. PHRS locked in a contract with no admin
+            key, released by proof of work, remembered by an on-chain reputation
+            ledger.
           </p>
           <div className="hero-links">
             <Link className="btn solid" to="/board">
@@ -246,7 +236,9 @@ export default function Home() {
           </div>
           {STEPS.map((s, i) => (
             <article className="step" key={s.k}>
-              <span className="step-num mono">{String(i + 1).padStart(2, "0")}</span>
+              <span className="step-num mono">
+                {String(i + 1).padStart(2, "0")}
+              </span>
               <h3>{s.title}</h3>
               <p>{s.body}</p>
             </article>
@@ -262,8 +254,13 @@ export default function Home() {
               <>
                 <strong className="mono">{stats.posted}</strong> task
                 {stats.posted === 1 ? "" : "s"} posted ·{" "}
-                <strong className="mono">{stats.settled}</strong> settled through{" "}
-                <a href={`${EXPLORER}/address/${CONTRACT}`} target="_blank" rel="noreferrer">
+                <strong className="mono">{stats.settled}</strong> settled
+                through{" "}
+                <a
+                  href={`${EXPLORER}/address/${CONTRACT}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
                   a verified contract
                 </a>{" "}
                 with no admin key
@@ -273,7 +270,8 @@ export default function Home() {
             )}
           </p>
           <p className="proof-sub">
-            Every number on this site is read live from chain id 688689. Nothing is mocked.
+            Every number on this site is read live from chain id 688689. Nothing
+            is mocked.
           </p>
         </div>
       </section>
@@ -281,7 +279,10 @@ export default function Home() {
       <section className="film-cta">
         <div className="reveal">
           <div className="moon moon-small">
-            <img src="/logo-ink.png" alt="Pharos AgentPay mascot: a cat flying with a lantern" />
+            <img
+              src="/logo-ink.png"
+              alt="Pharos AgentPay mascot: a cat flying with a lantern"
+            />
           </div>
           <h2>The lantern is lit</h2>
           <div className="hero-links center">
