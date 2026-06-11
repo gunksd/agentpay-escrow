@@ -606,6 +606,10 @@ select:focus-visible,
   gap: 12px;
 }
 
+.field-grid + .btn {
+  margin-top: 10px;
+}
+
 .inline-form {
   display: flex;
   gap: 10px;
