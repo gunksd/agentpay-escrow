@@ -1,0 +1,77 @@
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
+import type { Address } from "viem";
+import type { Task } from "../chain";
+import {
+  useEscrowWrites,
+  useTasks,
+  useWallet,
+  type TxToast,
+} from "../hooks";
+
+type AppCtx = {
+  address: Address | null;
+  connect: () => Promise<void>;
+  disconnect: () => void;
+  connecting: boolean;
+  chainOk: boolean;
+  tasks: Task[] | null;
+  tasksError: string | null;
+  reload: () => void;
+  notify: (t: Omit<TxToast, "id">) => void;
+  toasts: TxToast[];
+  write: (label: string, fn: string, args: unknown[], value?: bigint) => Promise<void>;
+  busy: string | null;
+};
+
+const Ctx = createContext<AppCtx | null>(null);
+
+export function AppProvider({ children }: { children: ReactNode }) {
+  const { address, connect, disconnect, connecting, chainOk } = useWallet();
+  const { tasks, error: tasksError, reload } = useTasks();
+  const [toasts, setToasts] = useState<TxToast[]>([]);
+  const toastId = useRef(0);
+
+  const notify = useCallback((t: Omit<TxToast, "id">) => {
+    const id = ++toastId.current;
+    setToasts((prev) => [...prev.filter((p) => p.kind !== "pending"), { ...t, id }]);
+    if (t.kind !== "pending") {
+      setTimeout(() => setToasts((prev) => prev.filter((p) => p.id !== id)), 8000);
+    }
+  }, []);
+
+  const { write, busy } = useEscrowWrites(address, notify, reload);
+
+  return (
+    <Ctx.Provider
+      value={{
+        address,
+        connect,
+        disconnect,
+        connecting,
+        chainOk,
+        tasks,
+        tasksError,
+        reload,
+        notify,
+        toasts,
+        write,
+        busy,
+      }}
+    >
+      {children}
+    </Ctx.Provider>
+  );
+}
+
+export function useApp(): AppCtx {
+  const v = useContext(Ctx);
+  if (!v) throw new Error("useApp outside AppProvider");
+  return v;
+}
