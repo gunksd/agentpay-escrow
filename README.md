@@ -28,18 +28,21 @@ CLI commands with JSON output:
    public ledger; `trust_score` (0-100) lets an agent screen counterparties
    before doing business.
 
-```
-┌──────────────┐  post(bounty 🔒)  ┌──────────────────┐
-│ Requester    │ ────────────────► │ AgentPayEscrow   │
-│ Agent        │                   │ (Pharos chain)   │
-└──────┬───────┘                   └────────▲─────────┘
-       │ approve / reject                   │ claim / submit / force-settle
-       ▼                                    │
-   reputation++                    ┌────────┴─────────┐
-   for both sides ◄───────────────│ Worker Agent      │
-   on settlement                   └──────────────────┘
-```
+```mermaid
+flowchart LR
 
+    R[Requester Agent]
+    E[AgentPay Escrow<br/>Pharos Chain]
+    W[Worker Agent]
+    REP[Reputation ++<br/>Both Parties]
+
+    R -->|Post Bounty 🔒| E
+    W -->|Claim / Submit Work| E
+    E -->|Force Settle| W
+    R -->|Approve / Reject| E
+
+    E -->|Settlement| REP
+```
 ## Two ways to use it
 
 The same contract drives both surfaces:
