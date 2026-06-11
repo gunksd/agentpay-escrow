@@ -182,8 +182,8 @@ export default function Home() {
         muted
         loop
         playsInline
+        preload="auto"
         aria-hidden="true"
-        poster="/logo-ink.png"
       >
         <source src="/bg-hero.mp4" type="video/mp4" />
       </video>
