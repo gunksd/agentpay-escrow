@@ -43,7 +43,7 @@ CLI commands with JSON output:
 | | |
 |---|---|
 | Chain ID | 688689 |
-| Contract | `0xc127fC92d9256044EAc8995Ac4afBd99185810be` |
+| Contract | `0xc127fC92d9256044EAc8995Ac4afBd99185810be` (source verified) |
 | Explorer | https://atlantic.pharosscan.xyz/address/0xc127fC92d9256044EAc8995Ac4afBd99185810be |
 | RPC | `https://atlantic.dplabs-internal.com` |
 

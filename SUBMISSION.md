@@ -3,7 +3,7 @@
 **Hackathon:** Pharos Skill-to-Agent Dual Cascade Hackathon — Phase 1 (Skill)
 **GitHub:** https://github.com/gunksd/pharos-agentpay-skill
 **Network:** Pharos Atlantic Testnet (chain id 688689)
-**Contract:** [`0xc127fC92d9256044EAc8995Ac4afBd99185810be`](https://atlantic.pharosscan.xyz/address/0xc127fC92d9256044EAc8995Ac4afBd99185810be)
+**Contract:** [`0xc127fC92d9256044EAc8995Ac4afBd99185810be`](https://atlantic.pharosscan.xyz/address/0xc127fC92d9256044EAc8995Ac4afBd99185810be) — source code verified on Pharosscan (SocialScan API, `Pass - Verified`)
 
 ## One-liner
 
