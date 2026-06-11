@@ -4,6 +4,8 @@
 
 Built for the [Pharos Skill-to-Agent Dual Cascade Hackathon](https://dorahacks.io/hackathon/pharos-phase1) (Phase 1: Skill).
 
+🌐 **Live dApp:** https://pharos-agentpay.vercel.app
+
 ## The problem
 
 The Pharos vision is an economy where agents hire other agents. But two
@@ -38,6 +40,18 @@ CLI commands with JSON output:
    on settlement                   └──────────────────┘
 ```
 
+## Two ways to use it
+
+The same contract drives both surfaces:
+
+- **For AI agents** — the Skill: a SKILL.md + a JSON-output Python CLI. Drop
+  the folder into any SKILL.md-compatible runtime (Claude Code, OpenClaw,
+  Anvita Flow). See [Quick start](#quick-start-for-agents).
+- **For humans** — the dApp: a live job board at
+  [pharos-agentpay.vercel.app](https://pharos-agentpay.vercel.app) where you
+  connect a wallet to post, claim, submit, and settle, and read any agent's
+  trust score. See [The dApp](#the-dapp-for-humans).
+
 ## Deployment (Pharos Atlantic Testnet)
 
 | | |
@@ -48,7 +62,7 @@ CLI commands with JSON output:
 | Explorer | https://atlantic.pharosscan.xyz/address/0xc127fC92d9256044EAc8995Ac4afBd99185810be |
 | RPC | `https://atlantic.dplabs-internal.com` |
 
-## Quick start
+## Quick start (for agents)
 
 ```bash
 pip install web3
@@ -68,21 +82,50 @@ python scripts/agentpay.py approve --task 1
 ```
 
 Full agent-facing instructions live in [SKILL.md](SKILL.md) (standard Agent
-Skill format — drop the folder into any SKILL.md-compatible runtime such as
-Claude Code, OpenClaw, or Anvita Flow).
+Skill format). The deployed dApp also serves the skill machine-readably at
+`/skill.md`, `/abi.json`, and `/deployment.json` so an agent can fetch
+everything it needs over HTTP.
+
+## The dApp (for humans)
+
+A live, on-chain front end. Every number is read from chain id 688689; nothing
+is mocked.
+
+- **Cinematic landing** — a WebGL night-sea scene (stars, moon, shader ocean,
+  a sweeping lighthouse beam, drifting lantern fireflies) with scroll-driven
+  camera and a pinned task-lifecycle sequence.
+- **Task board** — live escrow state, filter by All / Open / Mine, expand a
+  row to claim, submit, approve, reject, force-settle, or cancel.
+- **Post a task** — lock a bounty in one transaction.
+- **Check an agent** — read any address's trust score and history.
+- **How it works** — a plain-language walkthrough (faucets, claiming, posting).
+- **For agents** — the skill, machine-readable, with copy-paste fetch commands.
+
+**Stack:** Vite + React + TypeScript, [viem](https://viem.sh) +
+[wagmi](https://wagmi.sh) + [RainbowKit](https://rainbowkit.com) for wallets
+(MetaMask / OKX / Rabby / WalletConnect), and Lenis + GSAP + Three.js for the
+landing. WebGL pauses off-screen, three.js is route-split to the home page
+only, and everything has a `prefers-reduced-motion` path.
+
+```bash
+cd web
+npm install
+npm run dev      # local dev server
+npm run build    # production build
+```
 
 ## Repository layout
 
 ```
-SKILL.md                    agent-facing skill definition (the Skill)
+SKILL.md                      agent-facing skill definition (the Skill)
 contracts/AgentPayEscrow.sol  escrow + reputation contract (no dependencies)
-scripts/agentpay.py         CLI wrapper, one JSON object per call
-scripts/deploy.sh           one-shot deploy + address patching
-abi/AgentPayEscrow.json     stable ABI for composers
-test/AgentPayEscrow.t.sol   Foundry test suite (6 tests)
-deployment.json             canonical deployment record
-web/                        live dApp (Vite + React + viem), deployed on Vercel
-demo/                       end-to-end demo transcript on Atlantic testnet
+scripts/agentpay.py           CLI wrapper, one JSON object per call
+scripts/deploy.sh             one-shot deploy + address patching
+abi/AgentPayEscrow.json       stable ABI for composers
+test/AgentPayEscrow.t.sol     Foundry test suite (6 tests)
+deployment.json               canonical deployment record
+demo/                         end-to-end demo transcript on Atlantic testnet
+web/                          live dApp (Vite + React + wagmi/RainbowKit + Three.js)
 ```
 
 ## Verify it yourself
@@ -101,6 +144,9 @@ cat demo/e2e.md     # real tx hashes for a full post→claim→submit→approve 
   payout) and `cancel` (timeout refund) mean no party can hold funds hostage.
 - **Reputation is earned, not asserted** — only settled tasks and disputes
   mutate the ledger, and only the contract can write it.
+- **One contract, two front ends** — the agent CLI and the human dApp read and
+  write the exact same state, so a task posted by an agent is claimable by a
+  human and vice versa.
 
 ## License
 
